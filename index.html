@@ -289,6 +289,17 @@
     padding: 8px 0 4px;
     font-weight: 600;
   }
+  .shop-ad .ad-link {
+    display: block;
+    text-align: center;
+    font-size: 13px;
+    color: #50c878;
+    padding: 6px 0 2px;
+    text-decoration: none;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+  }
+  .shop-ad .ad-link:active { opacity: 0.7; }
 </style>
 </head>
 <body>
@@ -492,8 +503,9 @@ function renderQuestion() {
   if (currentQ < totalQuestions) {
     html += `
     <div class="shop-ad">
-      <img src="shop_ad_v2.jpg" alt="熊家子弟橱窗" />
+      <img src="shop_ad_v3.jpg" alt="熊家子弟橱窗" />
       <div class="ad-hint">👆 长按图片识别二维码逛橱窗</div>
+      <a class="ad-link" href="#微信小店带货橱窗://熊家子弟的橱窗/udEpUzH0SNPz9Kt">🛒 点我直接进入微信小店橱窗 →</a>
     </div>`;
   }
 
