@@ -300,6 +300,70 @@
     letter-spacing: 0.5px;
   }
   .shop-ad .ad-link:active { opacity: 0.7; }
+
+  /* 角色选择弹窗 */
+  .role-modal-overlay {
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(0,0,0,0.75); z-index: 9998;
+    display: flex; align-items: center; justify-content: center;
+    padding: 20px;
+  }
+  .role-modal {
+    background: linear-gradient(135deg, #1a1a2e, #16213e);
+    border-radius: 20px; padding: 28px 24px 24px;
+    max-width: 340px; width: 100%;
+    border: 1.5px solid rgba(240,192,64,0.35);
+    text-align: center;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+  }
+  .role-modal-title {
+    font-size: 16px; font-weight: 700; color: #f0c040;
+    margin-bottom: 6px;
+  }
+  .role-modal-subtitle {
+    font-size: 12px; color: #888; margin-bottom: 20px;
+  }
+  .role-modal-options {
+    display: flex; flex-direction: column; gap: 10px;
+  }
+  .role-modal-btn {
+    padding: 14px 16px;
+    border-radius: 12px;
+    border: 1.5px solid rgba(255,255,255,0.12);
+    background: rgba(255,255,255,0.05);
+    color: #e0e0e0;
+    font-size: 15px; font-weight: 600;
+    cursor: pointer; transition: all 0.15s;
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+  }
+  .role-modal-btn:active, .role-modal-btn:hover {
+    background: rgba(240,192,64,0.12); border-color: #f0c040; color: #f0c040;
+  }
+  .role-modal-btn .role-emoji { font-size: 18px; }
+  .role-modal-cancel {
+    margin-top: 18px; padding: 10px;
+    color: #555; font-size: 13px; cursor: pointer;
+    transition: color 0.15s;
+  }
+  .role-modal-cancel:active { color: #999; }
+
+  /* 分享卡片 — 角色描述区 */
+  .share-card-role {
+    background: rgba(255,255,255,0.05);
+    border-radius: 10px; padding: 12px 14px;
+    margin: 10px 0; border: 1px solid rgba(255,255,255,0.08);
+  }
+  .share-card-role-tag {
+    font-size: 13px; font-weight: 800; margin-bottom: 6px;
+    display: flex; align-items: center; gap: 6px; justify-content: center;
+    color: #e8e8e8;
+  }
+  .share-card-role-dot {
+    width: 8px; height: 8px; border-radius: 50%; display: inline-block;
+  }
+  .share-card-role-text {
+    font-size: 11px; color: #a0a0b0; line-height: 1.6; text-align: center;
+  }
 </style>
 </head>
 <body>
@@ -324,6 +388,29 @@
 
   <!-- 结果页 -->
   <div class="result-page" id="resultPage"></div>
+
+  <!-- 角色选择弹窗 -->
+  <div class="role-modal-overlay" id="roleModal" style="display:none;">
+    <div class="role-modal">
+      <div class="role-modal-title">🎯 分享时展示你的真实角色</div>
+      <div class="role-modal-subtitle">选择后在分享图中会显示对应描述</div>
+      <div class="role-modal-options">
+        <button class="role-modal-btn" onclick="selectRole(0)">
+          <span class="role-emoji">🍑</span> 我是 0（受）
+        </button>
+        <button class="role-modal-btn" onclick="selectRole(0.5)">
+          <span class="role-emoji">☯️</span> 我是 0.5（ versatile）
+        </button>
+        <button class="role-modal-btn" onclick="selectRole(1)">
+          <span class="role-emoji">👑</span> 我是 1（攻）
+        </button>
+        <button class="role-modal-btn" onclick="selectRole('secret')">
+          <span class="role-emoji">🤫</span> 保密
+        </button>
+      </div>
+      <div class="role-modal-cancel" onclick="closeRoleModal()">取消</div>
+    </div>
+  </div>
 
 </div>
 
@@ -471,6 +558,7 @@ const resultMap = {
 
 let currentQ = 0;
 let scores = [];
+let currentResult = null;   // 存储当前结果，供分享时使用
 const totalQuestions = 10;
 
 function startTest() {
@@ -544,6 +632,7 @@ function showResult() {
   else                       { tierKey = '0.8-1.0'; }
 
   const result = resultMap[tierKey];
+  currentResult = result;  // 存储结果供分享时使用
 
   // 构建结果页
   let html = `<div class="fade-in" id="screenshotArea">`;
@@ -599,7 +688,7 @@ function showResult() {
 
   // 按钮区
   html += `
-    <button class="share-btn" onclick="shareResult()">📷 生成分享图片</button>
+    <button class="share-btn" onclick="showRoleModal()">📷 生成分享图片</button>
     <button class="btn" onclick="restartTest()" style="width:100%; margin-bottom:4px;">再测一次</button>
     <div style="text-align:center; font-size:12px; color:#555; margin-top:8px;">分享给朋友，看看你们的分数差多少～</div>`;
 
@@ -617,26 +706,41 @@ function restartTest() {
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
-// 分享截图功能 — 生成精简分享卡片
-async function shareResult() {
+function showRoleModal() {
+  document.getElementById('roleModal').style.display = 'flex';
+}
+function closeRoleModal() {
+  document.getElementById('roleModal').style.display = 'none';
+}
+function selectRole(role) {
+  closeRoleModal();
+  generateShareImage(role);
+}
+function getRoleIndex(role) {
+  if (role === 0) return 0;
+  if (role === 0.5) return 1;
+  if (role === 1) return 2;
+  return -1;
+}
+
+// 生成分享图片（含角色描述）
+async function generateShareImage(role) {
   const btn = document.querySelector('.share-btn');
   if (btn) { btn.textContent = '⏳ 正在生成图片...'; btn.style.pointerEvents = 'none'; }
 
-  // 先移除旧的分享卡片
   const oldCard = document.getElementById('shareCard');
   if (oldCard) oldCard.remove();
 
   try {
-    // 从结果页读取当前数据
     const scoreNum = document.querySelector('.score-number').textContent;
     const typeHeader = document.querySelector('.type-header').textContent.trim();
     const typeDesc = document.querySelector('.type-desc').textContent;
 
-    // 创建分享卡片 DOM
     const card = document.createElement('div');
     card.id = 'shareCard';
     card.className = 'share-card';
-    card.innerHTML = `
+
+    let cardHTML = `
       <div class="share-card-header">
         <div class="share-card-emoji">🐻</div>
         <div class="share-card-title">性格攻受测试</div>
@@ -644,6 +748,25 @@ async function shareResult() {
       <div class="share-card-score">${scoreNum}</div>
       <div class="share-card-type">${typeHeader}</div>
       <div class="share-card-desc">${typeDesc}</div>
+    `;
+
+    // 添加角色描述（非"保密"时）
+    const roleIdx = getRoleIndex(role);
+    if (roleIdx >= 0 && currentResult && currentResult.roles[roleIdx]) {
+      const r = currentResult.roles[roleIdx];
+      const dotColor = r.roleClass === 'r0' ? '#c080f0' : (r.roleClass === 'r05' ? '#80c0f0' : '#f0a050');
+      cardHTML += `
+        <div class="share-card-role">
+          <div class="share-card-role-tag">
+            <span class="share-card-role-dot" style="background:${dotColor}"></span>
+            ${r.tag}
+          </div>
+          <div class="share-card-role-text">${r.text}</div>
+        </div>
+      `;
+    }
+
+    cardHTML += `
       <div class="share-card-divider"></div>
       <div class="share-card-qr">
         <img src="qr.jpg" alt="关注熊家子弟">
@@ -651,9 +774,10 @@ async function shareResult() {
       </div>
       <div class="share-card-footer">长按识别二维码关注公众号</div>
     `;
+
+    card.innerHTML = cardHTML;
     document.body.appendChild(card);
 
-    // 截图
     const canvas = await html2canvas(card, {
       backgroundColor: '#16213e',
       scale: 2,
@@ -663,7 +787,6 @@ async function shareResult() {
 
     const imgData = canvas.toDataURL('image/jpeg', 0.95);
 
-    // 创建预览遮罩
     const overlay = document.createElement('div');
     overlay.className = 'share-overlay';
     overlay.innerHTML = `
