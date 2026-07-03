@@ -276,22 +276,18 @@
     overflow: hidden;
     opacity: 0.95;
     transition: opacity 0.2s;
+    text-align: center;
   }
   .shop-ad img {
     width: 100%;
     display: block;
     border-radius: 12px;
   }
-  .shop-ad .ad-tag {
-    position: absolute;
-    top: 8px;
-    right: 8px;
-    background: rgba(240,192,64,0.9);
-    color: #1a1a2e;
-    font-size: 11px;
-    padding: 3px 10px;
-    border-radius: 50px;
-    font-weight: 700;
+  .shop-ad .ad-hint {
+    font-size: 12px;
+    color: #f0c040;
+    padding: 8px 0 4px;
+    font-weight: 600;
   }
 </style>
 </head>
@@ -495,10 +491,10 @@ function renderQuestion() {
   // 小广告位（答题页底部）
   if (currentQ < totalQuestions) {
     html += `
-    <a href="javascript:void(0)" onclick="this.style.opacity='0.8'" class="shop-ad">
+    <div class="shop-ad">
       <img src="shop_ad.jpg" alt="熊家子弟橱窗" />
-      <span class="ad-tag">🛒 橱窗好物</span>
-    </a>`;
+      <div class="ad-hint">👆 长按图片识别二维码逛橱窗</div>
+    </div>`;
   }
 
   html += `</div>`;
